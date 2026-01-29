@@ -1,7 +1,7 @@
 const birthdayConfig = {
     "name": "Thanh Thủy",
     "birthDate": "2000-01-29",
-    "relationshipStartDate": "2024-10-13T20:00:00",
+    "relationshipStartDate": "2024-10-13T21:30:00",
     "messages": [
         "Chúc mừng sinh nhật Thanh Thủy - người con gái quan trọng nhất đối với anh.",
         "Nhìn lại chặng đường đã qua, anh nhận ra mình đã có những lúc thật vô tâm...",
