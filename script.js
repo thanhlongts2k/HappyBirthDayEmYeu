@@ -427,29 +427,33 @@ function draw() {
 
         ctx.save();
         ctx.translate(sx, sy);
+        ctx.globalAlpha = starAlpha;
 
         // Base Glow
         ctx.shadowBlur = (isActive ? 35 : 5) + audioFreq * 40;
         ctx.shadowColor = isActive ? "#ffd700" : "white";
 
-        // Star Style - Cross/Star shape
-        const armLength = (star.r * (isActive ? 2.5 : 1.2)) * (1 + audioFreq * 0.5);
-        ctx.strokeStyle = isActive ? "#ffd700" : `rgba(255, 255, 255, ${starAlpha})`;
-        ctx.lineWidth = isActive ? 2 : 1;
+        // Star Style - Sharp 4-pointed Star (Twinkle)
+        const armLength = (star.r * (isActive ? 4.5 : 2.2)) * (1 + audioFreq * 0.8);
+        ctx.fillStyle = isActive ? "#ffd700" : "#fff";
 
-        // Draw Cross
+        // Draw Pointed Star Shape
         ctx.beginPath();
-        ctx.moveTo(-armLength, 0);
-        ctx.lineTo(armLength, 0);
         ctx.moveTo(0, -armLength);
-        ctx.lineTo(0, armLength);
-        ctx.stroke();
-
-        // Small center point
-        ctx.beginPath();
-        ctx.arc(0, 0, star.r * 0.4, 0, Math.PI * 2);
-        ctx.fillStyle = "white";
+        // Using (0,0) as control point creates the inward curve/sharp point effect
+        ctx.quadraticCurveTo(0, 0, armLength, 0);
+        ctx.quadraticCurveTo(0, 0, 0, armLength);
+        ctx.quadraticCurveTo(0, 0, -armLength, 0);
+        ctx.quadraticCurveTo(0, 0, 0, -armLength);
         ctx.fill();
+
+        // Extra brightness at center for active star
+        if (isActive) {
+            ctx.beginPath();
+            ctx.arc(0, 0, star.r * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = "#fff";
+            ctx.fill();
+        }
 
         ctx.restore();
 
