@@ -57,9 +57,10 @@ body::before {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 600px;
-    height: 600px;
-    margin: -300px 0 0 -300px;
+    width: 300px;
+    /* Scaled down for mobile */
+    height: 300px;
+    margin: -150px 0 0 -150px;
     background: repeating-conic-gradient(from 0deg,
             rgba(255, 105, 180, 0.15) 0deg 15deg,
             transparent 15deg 30deg);
@@ -73,9 +74,25 @@ body::before {
             rgba(255, 255, 255, 0.1) 0deg 10deg,
             transparent 10deg 20deg);
     animation: rotateRays 60s linear infinite reverse;
-    width: 800px;
-    height: 800px;
-    margin: -400px 0 0 -400px;
+    width: 400px;
+    /* Scaled down for mobile */
+    height: 400px;
+    margin: -200px 0 0 -200px;
+}
+
+/* Desktop sizing for rays */
+@media (min-width: 601px) {
+    #god-rays::before {
+        width: 600px;
+        height: 600px;
+        margin: -300px 0 0 -300px;
+    }
+
+    #god-rays::after {
+        width: 800px;
+        height: 800px;
+        margin: -400px 0 0 -400px;
+    }
 }
 
 @keyframes rotateRays {
@@ -189,14 +206,15 @@ canvas {
 
 @media (max-width: 600px) {
     .age-subtitle {
-        top: calc(40% + 45px);
-        font-size: 18px;
-        width: 100%;
+        top: calc(40% + 50px);
+        /* Better spacing */
+        font-size: 16px;
+        width: 90%;
         text-align: center;
     }
 
     .age-subtitle b {
-        font-size: 24px;
+        font-size: 20px;
     }
 }
 
@@ -262,11 +280,27 @@ canvas {
 
 @media (max-width: 600px) {
     .title {
-        font-size: 64px;
+        font-size: 48px;
+        /* Reduced to fit one line */
+        width: 100%;
+        letter-spacing: -1px;
     }
 
     .message-box {
+        font-size: 15px;
+        bottom: 12%;
+        padding: 16px 20px;
+        width: 85%;
+    }
+
+    .clock-container {
+        top: 15px;
+        right: 15px;
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .clock-container b {
         font-size: 16px;
-        bottom: 20%;
     }
 }
