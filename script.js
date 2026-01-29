@@ -5,11 +5,91 @@ const bgm = document.getElementById('bgm');
 const godRays = document.getElementById('god-rays');
 const clockElement = document.getElementById('relationship-clock');
 const ageElement = document.getElementById('age-display');
+const titleElement = document.querySelector('.title');
 
-const startDate = new Date('2024-10-13T20:00:00');
-const birthDate = new Date('2000-01-29');
+let config = {};
+let messages = [];
+let messageDurations = [];
+let startDate, birthDate;
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let mousePos = { x: canvas.width / 2, y: canvas.height / 2 };
+let targetMousePos = { x: canvas.width / 2, y: canvas.height / 2 };
+
+// Audio Analysis Setup
+let audioCtx, analyser, dataArray, source;
+let audioFreq = 0;
+let analysisEnabled = false;
+
+async function initApp() {
+    // Try to load from global variable first (config.js for offline)
+    // Fallback to config.json if offline data is not present
+    if (typeof birthdayConfig !== 'undefined') {
+        config = birthdayConfig;
+        console.log("Loaded config from config.js (Offline mode)");
+    } else {
+        try {
+            const response = await fetch('config.json');
+            config = await response.json();
+            console.log("Loaded config from config.json (Online mode)");
+        } catch (err) {
+            console.error("Failed to load any configuration:", err);
+            return;
+        }
+    }
+
+    applyConfig();
+}
+
+function applyConfig() {
+    messages = config.messages;
+    messageDurations = config.messageDurations;
+    startDate = new Date(config.relationshipStartDate);
+    birthDate = new Date(config.birthDate);
+
+    // Populate names
+    titleElement.textContent = config.name;
+    document.title = `Chúc mừng sinh nhật ${config.name}`;
+
+    // Start loops
+    updateAge();
+    setInterval(updateRelationshipClock, 1000);
+    updateRelationshipClock();
+    initStars();
+    initDust();
+    initNebula();
+    initHearts();
+    draw();
+}
+
+function initAudio() {
+    if (audioCtx) return;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+
+        try {
+            source = audioCtx.createMediaElementSource(bgm);
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            analysisEnabled = true;
+        } catch (corsError) {
+            console.warn("Audio analysis blocked (CORS).");
+            analysisEnabled = false;
+        }
+
+        analyser.fftSize = 256;
+        const bufferLength = analyser.frequencyBinCount;
+        dataArray = new Uint8Array(bufferLength);
+    } catch (e) {
+        console.error("Audio Context failed:", e);
+    }
+}
 
 function updateAge() {
+    if (!birthDate) return;
     const now = new Date();
     let age = now.getFullYear() - birthDate.getFullYear();
     const m = now.getMonth() - birthDate.getMonth();
@@ -19,9 +99,8 @@ function updateAge() {
     ageElement.innerHTML = `Mừng sinh nhật lần thứ <b>${age}</b> của em`;
 }
 
-updateAge();
-
 function updateRelationshipClock() {
+    if (!startDate) return;
     const now = new Date();
     let years = now.getFullYear() - startDate.getFullYear();
     let months = now.getMonth() - startDate.getMonth();
@@ -48,45 +127,6 @@ function updateRelationshipClock() {
     `;
 }
 
-setInterval(updateRelationshipClock, 1000);
-updateRelationshipClock();
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let mousePos = { x: canvas.width / 2, y: canvas.height / 2 };
-let targetMousePos = { x: canvas.width / 2, y: canvas.height / 2 };
-
-// Audio Analysis Setup
-let audioCtx, analyser, dataArray, source;
-let audioFreq = 0;
-let analysisEnabled = false;
-
-function initAudio() {
-    if (audioCtx) return;
-    try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-
-        try {
-            source = audioCtx.createMediaElementSource(bgm);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analysisEnabled = true;
-            console.log("Audio analysis enabled");
-        } catch (corsError) {
-            console.warn("Audio analysis blocked (CORS). Performing visual updates without sync.", corsError);
-            analysisEnabled = false;
-        }
-
-        analyser.fftSize = 256;
-        const bufferLength = analyser.frequencyBinCount;
-        dataArray = new Uint8Array(bufferLength);
-    } catch (e) {
-        console.error("Audio Context failed:", e);
-    }
-}
-
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -100,20 +140,6 @@ window.addEventListener('mousemove', (e) => {
     targetMousePos.y = e.clientY;
 });
 
-const messages = [
-    'Chúc mừng sinh nhật Thanh Thủy - người con gái quan trọng nhất đối với anh.',
-    'Nhìn lại chặng đường đã qua, anh nhận ra mình đã có những lúc thật vô tâm...',
-    'Đã có những lần anh vô tình làm em buồn, để em phải rơi nước mắt vì sự ích kỷ của anh.',
-    'Anh xin lỗi vì những lời nói vụng về, vì những lúc không hiểu hết được tâm tư của em.',
-    'Nhưng cảm ơn em thật nhiều, vì sau tất cả, em vẫn ở đó, nhẫn nại lắng nghe và bao dung cho anh.',
-    'Cảm ơn em đã không buông tay, đã cho anh cơ hội để học cách yêu thương em tốt hơn mỗi ngày.',
-    'Tuổi mới, anh không hứa sẽ hoàn hảo, nhưng anh hứa sẽ là người nỗ lực nhất để giữ lấy nụ cười của em.',
-    'Anh muốn cùng em đi qua thêm nhiều mùa sinh nhật nữa, để bù đắp và yêu thương em thật nhiều.',
-    'Chúc cô bé của anh luôn luôn rạng rỡ, hạnh phúc và bình yên. Anh yêu em rất nhiều! ❤️',
-    'Yêu em, hôm nay và mãi mãi về sau. ✨'
-];
-
-const messageDurations = [6000, 6000, 8000, 7000, 8000, 8000, 8000, 8000, 10000, 10000];
 let stars = [];
 let dust = [];
 let shootingStars = [];
@@ -123,15 +149,14 @@ let nebulaParticles = [];
 let hearts = [];
 
 let currentIndex = 0;
-let currentCharIndex = 0; // Track progress for resume
+let currentCharIndex = 0;
 let typingInterval = null;
-let currentTimeout = null; // Track callback timeouts
+let currentTimeout = null;
 let sequenceStarted = false;
 let isPaused = false;
 let pulse = 0;
 let skyShift = 0;
 let musicPlaying = false;
-let rayRotation = 0;
 
 class Heart {
     constructor() {
@@ -238,6 +263,7 @@ class Particle {
 
 function initStars() {
     stars = [];
+    if (!messages.length) return;
     for (let i = 0; i < messages.length; i++) {
         stars.push({
             x: Math.random() * canvas.width * 0.6 + canvas.width * 0.2,
@@ -286,11 +312,6 @@ function initHearts() {
 }
 
 for (let i = 0; i < 2; i++) shootingStars.push(new ShootingStar());
-
-initStars();
-initDust();
-initNebula();
-initHearts();
 
 function createExplosion(x, y) {
     for (let i = 0; i < 40; i++) {
@@ -491,24 +512,20 @@ function toggleExperience() {
     } else {
         // Pause / Resume
         if (!isPaused) {
-            // Pause
             bgm.pause();
             isPaused = true;
             clearInterval(typingInterval);
             if (currentTimeout) clearTimeout(currentTimeout);
             document.querySelector('.title').classList.remove('active');
         } else {
-            // Resume
             bgm.play();
             isPaused = false;
             document.querySelector('.title').classList.add('active');
 
-            // Check if we were in the middle of a message or waiting for the next
             const text = messages[currentIndex];
             if (currentCharIndex < text.length) {
                 typeMessage();
             } else {
-                // We were in the timeout waiting period
                 currentIndex++;
                 currentCharIndex = 0;
                 if (currentIndex < messages.length) {
@@ -527,4 +544,4 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-draw();
+initApp();
