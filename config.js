@@ -12,7 +12,14 @@ const birthdayConfig = {
         "Tuổi mới, anh không hứa sẽ hoàn hảo, nhưng anh hứa sẽ là người nỗ lực nhất để giữ lấy nụ cười của em.",
         "Anh muốn cùng em đi qua thêm nhiều mùa sinh nhật nữa, để bù đắp và yêu thương em thật nhiều.",
         "Chúc cô bé của anh luôn luôn rạng rỡ, hạnh phúc và bình yên. Anh yêu em rất nhiều! ❤️",
-        "Yêu em, hôm nay và mãi mãi về sau. ✨"
+        "✨Yêu em hôm nay✨",
+        "✨Yêu em ngày mai...✨",
+        "✨Yêu em mãi mãi...✨",
+        "✨Yêu em mãi về sau...✨",
+        "✨Yêu em mãi về sau...✨",
+        "✨Yêu em mãi về sau...✨",
+        "Điều quan trọng nên anh phải nhắc lại 3 lần!",
+        "Yêu em rất nhiều! ❤️"
     ],
-    "messageDurations": [6000, 6000, 8000, 7000, 8000, 8000, 8000, 8000, 10000, 10000]
+    "messageDurations": [6000, 6000, 8000, 7000, 8000, 8000, 8000, 8000, 8000, 2000, 2000, 2000, 2000, 2000, 2000, 3000, 5000]
 };

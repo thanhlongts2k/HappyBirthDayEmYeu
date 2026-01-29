@@ -154,6 +154,8 @@ let typingInterval = null;
 let currentTimeout = null;
 let sequenceStarted = false;
 let isPaused = false;
+let isFinale = false;
+let finaleT = 0;
 let pulse = 0;
 let skyShift = 0;
 let musicPlaying = false;
@@ -400,6 +402,23 @@ function draw() {
     fireworks = fireworks.filter(p => p.alpha > 0);
     fireworks.forEach(p => { p.update(); p.draw(); });
 
+    if (isFinale && !isPaused) {
+        // Increment t to move along the heart path
+        finaleT += 0.05;
+        const pos = getHeartPoint(finaleT);
+        // Spawn 2-3 particles at the current position to create a denser trail
+        for (let i = 0; i < 3; i++) {
+            trailParticles.push(new Particle(pos.x, pos.y, 'rgba(255, 105, 180, 0.8)', 0.8));
+        }
+
+        // Occasionally spawn a bigger "bubble"
+        if (Math.random() < 0.2) {
+            const p = new Particle(pos.x, pos.y, 'rgba(255, 255, 255, 0.6)', 0.4);
+            p.size = Math.random() * 4 + 2;
+            trailParticles.push(p);
+        }
+    }
+
     stars.forEach((star, i) => {
         const pulseScale = 1 + audioFreq * 1.2;
         const sx = star.x + offX;
@@ -436,8 +455,32 @@ function draw() {
     requestAnimationFrame(draw);
 }
 
+function getHeartPoint(t) {
+    // Standard parametric heart formula
+    // x = 16sin^3(t)
+    // y = 13cos(t) - 5cos(2t) - 2cos(3t) - cos(4t)
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    const scale = window.innerWidth < 600 ? 12 : 25;
+    return {
+        x: x * scale + canvas.width / 2,
+        y: y * scale + canvas.height * 0.4
+    };
+}
+
+function startFinale() {
+    isFinale = true;
+    messageBox.classList.remove('show'); // Hide messages when heart starts
+    console.log("Starting Heart Finale!");
+}
+
 function typeMessage() {
     if (isPaused || !sequenceStarted) return;
+
+    if (currentIndex >= messages.length) {
+        startFinale();
+        return;
+    }
 
     clearInterval(typingInterval);
     const text = messages[currentIndex];
@@ -464,9 +507,7 @@ function typeMessage() {
                 if (isPaused) return;
                 currentIndex++;
                 currentCharIndex = 0;
-                if (currentIndex < messages.length) {
-                    typeMessage();
-                }
+                typeMessage(); // Always call to trigger finale check
             }, messageDurations[currentIndex] || 5000);
         }
     }, 50);
