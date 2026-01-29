@@ -420,25 +420,38 @@ function draw() {
     }
 
     stars.forEach((star, i) => {
-        const pulseScale = 1 + audioFreq * 1.2;
         const sx = star.x + offX;
         const sy = star.y + offY;
+        const starAlpha = star.alpha;
+        const isActive = (i === currentIndex && sequenceStarted && !isFinale);
 
+        ctx.save();
+        ctx.translate(sx, sy);
+
+        // Base Glow
+        ctx.shadowBlur = (isActive ? 35 : 5) + audioFreq * 40;
+        ctx.shadowColor = isActive ? "#ffd700" : "white";
+
+        // Star Style - Cross/Star shape
+        const armLength = (star.r * (isActive ? 2.5 : 1.2)) * (1 + audioFreq * 0.5);
+        ctx.strokeStyle = isActive ? "#ffd700" : `rgba(255, 255, 255, ${starAlpha})`;
+        ctx.lineWidth = isActive ? 2 : 1;
+
+        // Draw Cross
         ctx.beginPath();
-        ctx.arc(sx, sy, star.r * pulseScale, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
+        ctx.moveTo(-armLength, 0);
+        ctx.lineTo(armLength, 0);
+        ctx.moveTo(0, -armLength);
+        ctx.lineTo(0, armLength);
+        ctx.stroke();
 
-        ctx.shadowBlur = 5 + audioFreq * 25;
-        ctx.shadowColor = "white";
+        // Small center point
+        ctx.beginPath();
+        ctx.arc(0, 0, star.r * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = "white";
         ctx.fill();
-        ctx.shadowBlur = 0;
 
-        if (i <= currentIndex && sequenceStarted) {
-            ctx.shadowBlur = 20 + audioFreq * 40;
-            ctx.shadowColor = "#ff1493";
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        }
+        ctx.restore();
 
         if (!isPaused) {
             const flicker = (Math.random() - 0.5) * 0.1;
